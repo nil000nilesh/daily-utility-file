@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Office Planner (Hinglish AI)</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="app">
+      <header>
+        <div>
+          <p class="eyebrow">AI Office Planner</p>
+          <h1>Hinglish Scheduler & Reminder</h1>
+          <p class="subtitle">
+            Apni daily office planning Hinglish me likho. App tasks ko sort karega,
+            sahi jagah place karega aur time pe reminder dega.
+          </p>
+        </div>
+        <div class="clock" id="clock"></div>
+      </header>
+
+      <main>
+        <section class="card">
+          <h2>1. Data do (Hinglish)</h2>
+          <p class="hint">Example: “9:30am team sync conference room me”, “2pm client call cabin 2”, “6pm report submit desk”.</p>
+          <div class="input-group">
+            <textarea id="taskInput" placeholder="Yaha apna data likho..."></textarea>
+            <button id="addTask">Add Task</button>
+          </div>
+          <div class="chip-row">
+            <span class="chip">meeting</span>
+            <span class="chip">call</span>
+            <span class="chip">follow-up</span>
+            <span class="chip">report</span>
+            <span class="chip">break</span>
+          </div>
+        </section>
+
+        <section class="grid">
+          <div class="card">
+            <h2>2. Sorted Schedule</h2>
+            <ul id="schedule" class="schedule"></ul>
+          </div>
+          <div class="card">
+            <h2>3. Reminders</h2>
+            <ul id="reminders" class="reminders"></ul>
+          </div>
+        </section>
+
+        <section class="card">
+          <h2>4. Conversation</h2>
+          <p class="hint">Ask: “aaj ki sari details batao”, “show all tasks”, “next meeting?”</p>
+          <div class="input-group">
+            <input id="chatInput" type="text" placeholder="Apna sawal yaha likho..." />
+            <button id="askButton">Ask</button>
+          </div>
+          <div id="chatOutput" class="chat-output"></div>
+        </section>
+      </main>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>
