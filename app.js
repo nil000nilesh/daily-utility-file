@@ -6,32 +6,8 @@ const chatInput = document.getElementById("chatInput");
 const askButton = document.getElementById("askButton");
 const chatOutput = document.getElementById("chatOutput");
 const clockEl = document.getElementById("clock");
-const apiKeyInput = document.getElementById("apiKeyInput");
-const saveApiKeyButton = document.getElementById("saveApiKey");
 
-const todoList = document.getElementById("todoList");
-const progressList = document.getElementById("progressList");
-const doneList = document.getElementById("doneList");
-
-const clientName = document.getElementById("clientName");
-const clientContact = document.getElementById("clientContact");
-const fileName = document.getElementById("fileName");
-const fileDetails = document.getElementById("fileDetails");
-const clientNotes = document.getElementById("clientNotes");
-const addClientButton = document.getElementById("addClient");
-const clientList = document.getElementById("clientList");
-
-const tabs = document.querySelectorAll(".tab");
-const panels = document.querySelectorAll(".panel");
-
-const STORAGE_KEYS = {
-  tasks: "smartOfficeTasks",
-  clients: "smartOfficeClients",
-  apiKey: "openaiApiKey",
-};
-
-const tasks = loadStoredData(STORAGE_KEYS.tasks, []);
-const clients = loadStoredData(STORAGE_KEYS.clients, []);
+const tasks = [];
 let reminderTimers = [];
 
 const LOCATION_HINTS = [
@@ -51,20 +27,6 @@ const CATEGORY_HINTS = [
 ];
 
 const TIME_REGEX = /(\b\d{1,2})(?::(\d{2}))?\s?(am|pm)?/i;
-
-function loadStoredData(key, fallback) {
-  const raw = localStorage.getItem(key);
-  if (!raw) return fallback;
-  try {
-    return JSON.parse(raw);
-  } catch {
-    return fallback;
-  }
-}
-
-function saveStoredData(key, value) {
-  localStorage.setItem(key, JSON.stringify(value));
-}
 
 function updateClock() {
   const now = new Date();
@@ -113,8 +75,7 @@ function parseTask(text) {
     time: hour !== null ? { hour, minute } : null,
     location,
     category,
-    status: "todo",
-    createdAt: new Date().toISOString(),
+    createdAt: new Date(),
   };
 }
 
@@ -150,42 +111,6 @@ function renderSchedule() {
       <span class="badge">${task.category}</span>
     `;
     scheduleList.appendChild(li);
-  });
-}
-
-function renderBoard() {
-  todoList.innerHTML = "";
-  progressList.innerHTML = "";
-  doneList.innerHTML = "";
-
-  tasks.forEach((task) => {
-    const li = document.createElement("li");
-    li.innerHTML = `
-      <strong>${task.title}</strong>
-      <span class="meta">${formatTime(task.time)} · ${task.location}</span>
-      <div class="status-actions">
-        <button data-status="todo">To Do</button>
-        <button data-status="progress">In Progress</button>
-        <button data-status="done">Done</button>
-      </div>
-    `;
-
-    li.querySelectorAll("button").forEach((button) => {
-      button.addEventListener("click", () => {
-        task.status = button.dataset.status;
-        saveStoredData(STORAGE_KEYS.tasks, tasks);
-        renderBoard();
-        renderSchedule();
-      });
-    });
-
-    if (task.status === "progress") {
-      progressList.appendChild(li);
-    } else if (task.status === "done") {
-      doneList.appendChild(li);
-    } else {
-      todoList.appendChild(li);
-    }
   });
 }
 
@@ -235,125 +160,45 @@ function addTask() {
 
   const newTask = parseTask(text);
   tasks.push(newTask);
-  saveStoredData(STORAGE_KEYS.tasks, tasks);
   taskInput.value = "";
   renderSchedule();
-  renderBoard();
   scheduleReminders();
   chatOutput.textContent = `Samajh gaya: ${newTask.title} (${formatTime(newTask.time)}, ${newTask.location}).`;
 }
 
-function renderClients() {
-  clientList.innerHTML = "";
-  clients.forEach((client) => {
-    const li = document.createElement("li");
-    li.innerHTML = `
-      <strong>${client.name}</strong>
-      <span class="meta">${client.contact}</span>
-      <span class="badge">${client.fileName}</span>
-      <span class="meta">${client.fileDetails}</span>
-      <span class="meta">${client.notes}</span>
-    `;
-    clientList.appendChild(li);
-  });
-}
-
-function addClient() {
-  if (!clientName.value.trim()) return;
-  const client = {
-    id: crypto.randomUUID(),
-    name: clientName.value.trim(),
-    contact: clientContact.value.trim() || "-",
-    fileName: fileName.value.trim() || "-",
-    fileDetails: fileDetails.value.trim() || "-",
-    notes: clientNotes.value.trim() || "-",
-    createdAt: new Date().toISOString(),
-  };
-
-  clients.push(client);
-  saveStoredData(STORAGE_KEYS.clients, clients);
-  clientName.value = "";
-  clientContact.value = "";
-  fileName.value = "";
-  fileDetails.value = "";
-  clientNotes.value = "";
-  renderClients();
-}
-
-function saveApiKey() {
-  const value = apiKeyInput.value.trim();
-  if (!value) return;
-  localStorage.setItem(STORAGE_KEYS.apiKey, value);
-  apiKeyInput.value = "";
-  chatOutput.textContent = "API key saved. Ab aap ChatGPT se baat kar sakte ho.";
-}
-
-function getApiKey() {
-  return localStorage.getItem(STORAGE_KEYS.apiKey);
-}
-
-async function handleChat() {
-  const query = chatInput.value.trim();
+function handleChat() {
+  const query = chatInput.value.trim().toLowerCase();
   if (!query) return;
-  chatOutput.textContent = "Thinking...";
 
-  const apiKey = getApiKey();
-  if (!apiKey) {
-    chatOutput.textContent = "API key nahi mila. Pehle key save karo.";
+  if (query.includes("sari details") || query.includes("all tasks") || query.includes("details")) {
+    if (!tasks.length) {
+      chatOutput.textContent = "Abhi koi task nahi hai.";
+      return;
+    }
+    const details = sortTasks(tasks)
+      .map(
+        (task, index) =>
+          `${index + 1}. ${task.title} | ${formatTime(task.time)} | ${task.location} | ${task.category}`
+      )
+      .join("\n");
+    chatOutput.textContent = `Aaj ki sari details:\n${details}`;
     return;
   }
 
-  const payload = {
-    model: "gpt-4o-mini",
-    messages: [
-      {
-        role: "system",
-        content:
-          "You are a Hinglish office planner assistant. Reply in simple Hinglish. Summarize tasks, reminders, and client data clearly.",
-      },
-      {
-        role: "user",
-        content: `User query: ${query}\n\nTasks: ${JSON.stringify(tasks)}\nClients: ${JSON.stringify(clients)}`,
-      },
-    ],
-  };
-
-  try {
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify(payload),
-    });
-
-    if (!response.ok) {
-      throw new Error(`API error: ${response.status}`);
-    }
-
-    const data = await response.json();
-    chatOutput.textContent = data.choices?.[0]?.message?.content || "No response.";
-  } catch (error) {
-    chatOutput.textContent = `Error: ${error.message}`;
+  if (query.includes("next") || query.includes("agla")) {
+    const nextTask = sortTasks(tasks).find((task) => task.time);
+    chatOutput.textContent = nextTask
+      ? `Agla task: ${nextTask.title} at ${formatTime(nextTask.time)} (${nextTask.location}).`
+      : "Koi timed task nahi mila.";
+    return;
   }
-}
 
-function initTabs() {
-  tabs.forEach((tab) => {
-    tab.addEventListener("click", () => {
-      tabs.forEach((item) => item.classList.remove("active"));
-      panels.forEach((panel) => panel.classList.remove("active"));
-      tab.classList.add("active");
-      document.getElementById(tab.dataset.tab).classList.add("active");
-    });
-  });
+  chatOutput.textContent =
+    "Main schedule check kar raha hoon. Aap 'sari details' ya 'next' puch sakte ho.";
 }
 
 addTaskButton.addEventListener("click", addTask);
 askButton.addEventListener("click", handleChat);
-saveApiKeyButton.addEventListener("click", saveApiKey);
-addClientButton.addEventListener("click", addClient);
 
 chatInput.addEventListener("keydown", (event) => {
   if (event.key === "Enter") {
@@ -366,11 +211,3 @@ taskInput.addEventListener("keydown", (event) => {
     addTask();
   }
 });
-
-apiKeyInput.value = getApiKey() ? "********" : "";
-
-renderSchedule();
-renderBoard();
-renderClients();
-scheduleReminders();
-initTabs();

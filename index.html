@@ -3,120 +3,59 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Smart Office Job Planner</title>
+    <title>Office Planner (Hinglish AI)</title>
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
     <div class="app">
-      <header class="hero">
+      <header>
         <div>
-          <p class="eyebrow">Smart Office Planner</p>
-          <h1>Hinglish Job Planner + Taskboard</h1>
+          <p class="eyebrow">AI Office Planner</p>
+          <h1>Hinglish Scheduler & Reminder</h1>
           <p class="subtitle">
-            Hinglish me data do, AI usko sort karega, client/job info save karega aur reminder dega.
+            Apni daily office planning Hinglish me likho. App tasks ko sort karega,
+            sahi jagah place karega aur time pe reminder dega.
           </p>
         </div>
         <div class="clock" id="clock"></div>
       </header>
 
-      <nav class="tabs">
-        <button class="tab active" data-tab="planner">Planner</button>
-        <button class="tab" data-tab="taskboard">Taskboard</button>
-        <button class="tab" data-tab="clients">Clients & Files</button>
-      </nav>
-
       <main>
-        <section class="panel active" id="planner">
-          <div class="grid">
-            <section class="card">
-              <h2>1. Hinglish Input</h2>
-              <p class="hint">Example: “9:30am team sync conference room me”, “2pm client call cabin 2”.</p>
-              <div class="input-group">
-                <textarea id="taskInput" placeholder="Yaha apna task likho..."></textarea>
-                <button id="addTask">Add Task</button>
-              </div>
-              <div class="chip-row">
-                <span class="chip">meeting</span>
-                <span class="chip">call</span>
-                <span class="chip">follow-up</span>
-                <span class="chip">report</span>
-                <span class="chip">break</span>
-              </div>
-            </section>
-
-            <section class="card">
-              <h2>2. AI Assistant (ChatGPT)</h2>
-              <p class="hint">API key local storage me rahega. Model suggestion: gpt-4o-mini.</p>
-              <div class="input-group">
-                <input id="apiKeyInput" type="password" placeholder="OpenAI API key" />
-                <button id="saveApiKey">Save Key</button>
-              </div>
-              <div class="input-group">
-                <input id="chatInput" type="text" placeholder="AI se pucho: sari details, next meeting..." />
-                <button id="askButton">Ask</button>
-              </div>
-              <div id="chatOutput" class="chat-output"></div>
-            </section>
+        <section class="card">
+          <h2>1. Data do (Hinglish)</h2>
+          <p class="hint">Example: “9:30am team sync conference room me”, “2pm client call cabin 2”, “6pm report submit desk”.</p>
+          <div class="input-group">
+            <textarea id="taskInput" placeholder="Yaha apna data likho..."></textarea>
+            <button id="addTask">Add Task</button>
           </div>
-
-          <section class="grid">
-            <div class="card">
-              <h2>3. Sorted Schedule</h2>
-              <ul id="schedule" class="schedule"></ul>
-            </div>
-            <div class="card">
-              <h2>4. Reminders</h2>
-              <ul id="reminders" class="reminders"></ul>
-            </div>
-          </section>
-        </section>
-
-        <section class="panel" id="taskboard">
-          <div class="card">
-            <h2>Taskboard</h2>
-            <p class="hint">Tasks ko drag/drop nahi, simple status me move karo.</p>
-            <div class="board">
-              <div class="board-column">
-                <h3>To Do</h3>
-                <ul id="todoList" class="board-list"></ul>
-              </div>
-              <div class="board-column">
-                <h3>In Progress</h3>
-                <ul id="progressList" class="board-list"></ul>
-              </div>
-              <div class="board-column">
-                <h3>Done</h3>
-                <ul id="doneList" class="board-list"></ul>
-              </div>
-            </div>
+          <div class="chip-row">
+            <span class="chip">meeting</span>
+            <span class="chip">call</span>
+            <span class="chip">follow-up</span>
+            <span class="chip">report</span>
+            <span class="chip">break</span>
           </div>
         </section>
 
-        <section class="panel" id="clients">
+        <section class="grid">
           <div class="card">
-            <h2>Client & Files Data</h2>
-            <p class="hint">Client name, contact aur file details save karo.</p>
-            <div class="grid">
-              <div>
-                <div class="input-group">
-                  <input id="clientName" type="text" placeholder="Client name" />
-                  <input id="clientContact" type="text" placeholder="Contact (email/phone)" />
-                </div>
-                <div class="input-group">
-                  <input id="fileName" type="text" placeholder="File name" />
-                  <input id="fileDetails" type="text" placeholder="File details" />
-                </div>
-                <div class="input-group">
-                  <textarea id="clientNotes" placeholder="Notes / requirements"></textarea>
-                  <button id="addClient">Save Client</button>
-                </div>
-              </div>
-              <div>
-                <h3>Saved Clients</h3>
-                <ul id="clientList" class="schedule"></ul>
-              </div>
-            </div>
+            <h2>2. Sorted Schedule</h2>
+            <ul id="schedule" class="schedule"></ul>
           </div>
+          <div class="card">
+            <h2>3. Reminders</h2>
+            <ul id="reminders" class="reminders"></ul>
+          </div>
+        </section>
+
+        <section class="card">
+          <h2>4. Conversation</h2>
+          <p class="hint">Ask: “aaj ki sari details batao”, “show all tasks”, “next meeting?”</p>
+          <div class="input-group">
+            <input id="chatInput" type="text" placeholder="Apna sawal yaha likho..." />
+            <button id="askButton">Ask</button>
+          </div>
+          <div id="chatOutput" class="chat-output"></div>
         </section>
       </main>
     </div>
